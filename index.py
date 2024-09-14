@@ -1,27 +1,23 @@
-import matplotlib.pyplot as plt # type: ignore
-import matplotlib.animation as animation # type: ignore
-from kafka.producer import KafkaProducer# type: ignore
-from kafka.consumer import KafkaConsumer# type: ignore
-import numpy as np# type: ignore
+import matplotlib.pyplot as plt   
+import matplotlib.animation as animation   
+from kafka.producer import KafkaProducer  
+from kafka.consumer import KafkaConsumer  
+import numpy as np  
 import json
 import time
-from sklearn.ensemble import IsolationForest# type: ignore
-import matplotlib.pyplot as plt # type: ignore
-from matplotlib.animation import FuncAnimation # type: ignore
+from sklearn.ensemble import IsolationForest  
+import matplotlib.pyplot as plt   
+from matplotlib.animation import FuncAnimation   
 
 
 def create_kafka_producer(bootstrap_servers):
-    """
-    Create and return a Kafka producer.
-    """
-    print("[DEBUG] Creating Kafka Producer...")
     return KafkaProducer(bootstrap_servers=bootstrap_servers)
+
 
 def produce_synthetic_data(producer, topic_name, num_data_points=100):
     """
     Produce synthetic data with occasional anomalies and send it to a Kafka topic.
     """
-    print(f"[DEBUG] Producing {num_data_points} synthetic data points...")
     for i in range(num_data_points):
         value = np.sin(i * 0.1)
         
@@ -32,25 +28,25 @@ def produce_synthetic_data(producer, topic_name, num_data_points=100):
             "value": value,
             "time_step": i
         }
-        print(f"[DEBUG] Produced data: {data}")
         producer.send(topic_name, value=json.dumps(data).encode("utf-8"))
         time.sleep(0.01)  # Small delay to simulate real-time data production
 
     producer.flush()
-    print("[DEBUG] Finished producing data.")
+    
+    
 
 def create_kafka_consumer(topic_name, bootstrap_servers):
     """
     Create and return a Kafka consumer with a timeout.
     """
-    print(f"[DEBUG] Creating Kafka Consumer for topic '{topic_name}'...")
     return KafkaConsumer(topic_name, bootstrap_servers=bootstrap_servers, consumer_timeout_ms=10000)  # Timeout after 10s
+
+
 
 def collect_raw_data(consumer, max_data_points=100):
     """
     Collect raw data from a Kafka topic.
     """
-    print(f"[DEBUG] Collecting raw data (max {max_data_points} points)...")
     data, time_steps = [], []
     
     for i, msg in enumerate(consumer):
@@ -58,53 +54,50 @@ def collect_raw_data(consumer, max_data_points=100):
         data.append([value])
         time_steps.append(i)
 
-        print(f"[DEBUG] Collected data point: {value} at time-step {i}")
-
         if len(data) >= max_data_points:
             break
 
     if not data:
-        print("[DEBUG] No data received. Exiting collection.")
+        print("No data received. Exiting collection.")
     else:
-        print(f"[DEBUG] Finished collecting {len(data)} raw data points.")
+        print(f"Finished collecting {len(data)} raw data points.")
     
     return np.array(data), time_steps
+
+
 
 def detect_anomalies(X, contamination=0.1):
     """
     Detect anomalies in the data using the Isolation Forest algorithm.
     """
-    print("[DEBUG] Detecting anomalies using Isolation Forest...")
     model = IsolationForest(contamination=contamination)
     model.fit(X)
     pred = model.predict(X)
     anomalies = X[pred == -1]
     anomaly_indices = [i for i, p in enumerate(pred) if p == -1]
-
-    print(f"[DEBUG] Detected {len(anomalies)} anomalies.")
     return anomalies, anomaly_indices
+
+
 
 def produce_anomalies(producer, topic_name, anomalies, anomaly_time_steps):
     """
     Send detected anomalies to a Kafka topic.
     """
-    print("[DEBUG] Producing detected anomalies...")
     for anomaly, time_step in zip(anomalies, anomaly_time_steps):
         anomaly_data = {
             "anomalous_value": anomaly[0],
             "time_step": time_step
         }
-        print(f"[DEBUG] Produced anomaly: {anomaly_data}")
         producer.send(topic_name, value=json.dumps(anomaly_data))
 
     producer.flush()
-    print("[DEBUG] Finished producing anomalies.")
+
+
 
 def real_time_visualization(X, time_steps, anomalies, anomaly_time_steps):
     """
     Real-time visualization of data and detected anomalies.
     """
-    print("[DEBUG] Starting real-time visualization...")
     fig, ax = plt.subplots()
 
     def animate(i):
@@ -120,25 +113,7 @@ def real_time_visualization(X, time_steps, anomalies, anomaly_time_steps):
 
     ani = animation.FuncAnimation(fig, animate, frames=len(time_steps), interval=100)
     plt.show()
-
-
-# def update_plot(frame, X, anomalies, anomaly_time_steps, line, scatter):
-#     print("Updating plot...")
-#     # Set normal data
-#     line.set_data(range(len(X)), X[:, 0])
-
-#     # Ensure the anomalies and their time steps are in the correct format
-#     if len(anomalies) > 0:
-#         scatter.set_offsets(np.c_[[time_steps[i] for i in anomaly_time_steps], anomalies])
-#     else:
-#         scatter.set_offsets([])  # If no anomalies, clear the scatter plot
-
-#     return line, scatter
-
-# def data_generator(X, anomalies, anomaly_time_steps):
-#   while True:
-#       yield (X, anomalies, anomaly_time_steps)
-      
+    
       
 if __name__ == "__main__":
     bootstrap_servers = 'localhost:9093'
@@ -167,34 +142,6 @@ if __name__ == "__main__":
         # Print results
         print("Detected anomalies:")
         for anomaly, time_step in zip(anomalies, anomaly_time_steps):
-            print(f"Value: {anomaly[0]}, Time-step: {time_step}")
-            
+            print(f"Value: {anomaly[0]}, Time-step: {time_step}")         
     
-    # Set up real-time visualization
-    # fig, ax = plt.subplots()
-    # ax.set_xlim(0, len(X))
-    # ax.set_ylim(np.min(X) - 1, np.max(X) + 1)
-    # line, = ax.plot([], [], lw=2, label='Normal Data')
-    # scatter = ax.scatter([], [], color='red', label='Anomalies')
-
-    # ax.legend()
-
-    # def init():
-    #     print("Initializing plot...")
-    #     line.set_data([], [])
-    #     scatter.set_offsets([])
-    #     return line, scatter
-
-    # ani = FuncAnimation(
-    #     fig, 
-    #     update_plot, 
-    #     frames=data_generator(X, anomalies, anomaly_time_steps),
-    #     init_func=init,
-    #     interval=1000,
-    #     blit=True,
-    #     cache_frame_data=False  # Suppresses the warning
-    # )
-
-
-    # print("Displaying plot...")
-    # plt.show()
+   
