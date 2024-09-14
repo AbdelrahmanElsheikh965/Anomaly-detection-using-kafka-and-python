@@ -19,3 +19,10 @@ source venv/bin/activate
 pip freeze > requirements.txt
 ```
 
+
+4. Run all deps
+
+```
+pip install -r requirements.txt
+```
+
