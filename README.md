@@ -2,15 +2,20 @@
 
 # Installation
 
-1.
+1. Create a Virtual Environment in your project directory:
 
 ```
 python -m venv venv
 ```
 
-2.
+2. Activate the Virtual Environment:
+```
+source venv/bin/activate
+```
+
+3. List all deps installed
 
 ```
-pip install -r requirements.txt
+pip freeze > requirements.txt
 ```
 
