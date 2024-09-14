@@ -6,6 +6,8 @@ import numpy as np# type: ignore
 import json
 import time
 from sklearn.ensemble import IsolationForest# type: ignore
+import matplotlib.pyplot as plt # type: ignore
+from matplotlib.animation import FuncAnimation # type: ignore
 
 
 def create_kafka_producer(bootstrap_servers):
@@ -119,6 +121,25 @@ def real_time_visualization(X, time_steps, anomalies, anomaly_time_steps):
     ani = animation.FuncAnimation(fig, animate, frames=len(time_steps), interval=100)
     plt.show()
 
+
+# def update_plot(frame, X, anomalies, anomaly_time_steps, line, scatter):
+#     print("Updating plot...")
+#     # Set normal data
+#     line.set_data(range(len(X)), X[:, 0])
+
+#     # Ensure the anomalies and their time steps are in the correct format
+#     if len(anomalies) > 0:
+#         scatter.set_offsets(np.c_[[time_steps[i] for i in anomaly_time_steps], anomalies])
+#     else:
+#         scatter.set_offsets([])  # If no anomalies, clear the scatter plot
+
+#     return line, scatter
+
+# def data_generator(X, anomalies, anomaly_time_steps):
+#   while True:
+#       yield (X, anomalies, anomaly_time_steps)
+      
+      
 if __name__ == "__main__":
     bootstrap_servers = 'localhost:9093'
 
@@ -147,3 +168,33 @@ if __name__ == "__main__":
         print("Detected anomalies:")
         for anomaly, time_step in zip(anomalies, anomaly_time_steps):
             print(f"Value: {anomaly[0]}, Time-step: {time_step}")
+            
+    
+    # Set up real-time visualization
+    # fig, ax = plt.subplots()
+    # ax.set_xlim(0, len(X))
+    # ax.set_ylim(np.min(X) - 1, np.max(X) + 1)
+    # line, = ax.plot([], [], lw=2, label='Normal Data')
+    # scatter = ax.scatter([], [], color='red', label='Anomalies')
+
+    # ax.legend()
+
+    # def init():
+    #     print("Initializing plot...")
+    #     line.set_data([], [])
+    #     scatter.set_offsets([])
+    #     return line, scatter
+
+    # ani = FuncAnimation(
+    #     fig, 
+    #     update_plot, 
+    #     frames=data_generator(X, anomalies, anomaly_time_steps),
+    #     init_func=init,
+    #     interval=1000,
+    #     blit=True,
+    #     cache_frame_data=False  # Suppresses the warning
+    # )
+
+
+    # print("Displaying plot...")
+    # plt.show()
