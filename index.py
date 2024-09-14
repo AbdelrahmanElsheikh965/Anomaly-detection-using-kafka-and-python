@@ -103,25 +103,6 @@ def detect_anomalies(X, contamination=0.1):
 
 
 
-def produce_anomalies(producer, topic_name, anomalies, anomaly_time_steps):
-    """
-    Send detected anomalies to a Kafka topic.
-    """
-    print("[DEBUG] Producing detected anomalies...")
-    for anomaly, time_step in zip(anomalies, anomaly_time_steps):
-        anomaly_data = {
-            "anomalous_value": anomaly[0],
-            "time_step": time_step
-        }
-        print(f"[DEBUG] Produced anomaly: {anomaly_data}")
-        producer.send(topic_name, value=json.dumps(anomaly_data).encode("utf-8"))
-
-    producer.flush()
-    print("[DEBUG] Finished producing anomalies.")
-
-
-
-
 def real_time_visualization(X, time_steps, anomalies, anomaly_time_steps):
     """
     Real-time visualization of data and detected anomalies.
@@ -161,11 +142,6 @@ if __name__ == "__main__":
     if len(X) > 0:
         # Detect anomalies
         anomalies, anomaly_time_steps = detect_anomalies(X)
-
-        # Produce anomalies
-        anomalies_producer = create_kafka_producer(bootstrap_servers)
-        produce_anomalies(anomalies_producer, 'anomalies', anomalies, anomaly_time_steps)
-        anomalies_producer.close()
 
         # Real-time visualization
         real_time_visualization(X, time_steps, anomalies, anomaly_time_steps)
