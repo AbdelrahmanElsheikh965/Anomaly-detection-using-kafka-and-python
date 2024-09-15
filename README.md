@@ -1,5 +1,8 @@
 # Efficient Data Stream Anomaly Detection
 
+![](https://github.com/AbdelrahmanElsheikh965/Research-Project/blob/develop/anomalies.gif)
+
+
 ## Why Isolation Alogirhtm
 
 The Isolation Forest algorithm is an **anomaly detection algorithm** specifically designed to identify rare or anomalous data points within a dataset. Here's a concise explanation of how it works and why it is effective:
