@@ -1,5 +1,10 @@
 # Efficient Data Stream Anomaly Detection
 
+
+## The Approach
+
+Firstly, we create a Kafka producer, and then, we generate some data with some noise randomly to be sent with that producer on a certain topic (raw-data) so that it can be consumed by a Kafka consumer then we collect data that the consumer got and try to detect any anomalies within using Isolation-Forest Algorithm finally we visualize everything (normal data as blue line and any anomalies as red dots) found in the real-time like illustrated in the gif below.
+
 ![](https://github.com/AbdelrahmanElsheikh965/Research-Project/blob/develop/anomalies.gif)
 
 
